@@ -12,18 +12,18 @@ import { CommonModule } from '@angular/common';
   styleUrl: './app.css'
 })
 export class App {
-  registroForm: FormGroup;
-  mensajeExito = signal<string>('');
-  cargando = signal<boolean>(false);
+  registrationForm: FormGroup;
+  successMessage = signal<string>('');
+  isLoading = signal<boolean>(false);
 
   constructor(private fb: FormBuilder) {
-    this.registroForm = this.fb.group({
-      nombre: ['', [Validators.required, Validators.minLength(3)]],
+    this.registrationForm = this.fb.group({
+      fullName: ['', [Validators.required, Validators.minLength(3)]],
       email: ['', [Validators.required, Validators.email], [this.emailAsyncValidator]],
       password: ['', [Validators.required, Validators.minLength(6)]],
       confirmPassword: ['', [Validators.required]],
-      edad: ['', [Validators.required, Validators.min(18)]],
-      terminos: [false, [Validators.requiredTrue]]
+      age: ['', [Validators.required, Validators.min(18)]],
+      terms: [false, [Validators.requiredTrue]]
     }, { validators: this.matchPasswordValidator });
   }
 
@@ -31,14 +31,14 @@ export class App {
     const password = control.get('password')?.value;
     const confirmPassword = control.get('confirmPassword')?.value;
     
-    // Solo validamos si ambos campos tienen valor o han sido tocados
+    // Only validate if both fields have values
     if (!password || !confirmPassword) return null;
 
     if (password !== confirmPassword) {
       control.get('confirmPassword')?.setErrors({ passwordMismatch: true });
       return { passwordMismatch: true };
     } else {
-      // Remover el error específico
+      // Remove specific error
       const currentErrors = control.get('confirmPassword')?.errors;
       if (currentErrors) {
         const errors = { ...currentErrors };
@@ -54,7 +54,7 @@ export class App {
     return of(email).pipe(
       delay(1500), 
       map(e => {
-        if (e === 'test@test.com' || e === 'admin@banco.com') {
+        if (e === 'test@test.com' || e === 'admin@banking.com') {
           return { emailTaken: true };
         }
         return null;
@@ -63,19 +63,19 @@ export class App {
   }
 
   onSubmit() {
-    if (this.registroForm.valid) {
-      this.cargando.set(true);
-      this.mensajeExito.set('');
+    if (this.registrationForm.valid) {
+      this.isLoading.set(true);
+      this.successMessage.set('');
       
       setTimeout(() => {
-        this.cargando.set(false);
-        this.mensajeExito.set('¡Registro completado con éxito! Bienvenido al futuro bancario.');
-        this.registroForm.reset();
+        this.isLoading.set(false);
+        this.successMessage.set('Registration successful! Welcome to SPG-Banking.');
+        this.registrationForm.reset();
         
-        setTimeout(() => this.mensajeExito.set(''), 5000);
+        setTimeout(() => this.successMessage.set(''), 5000);
       }, 2500);
     } else {
-      this.registroForm.markAllAsTouched();
+      this.registrationForm.markAllAsTouched();
     }
   }
 }
